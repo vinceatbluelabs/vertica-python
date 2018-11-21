@@ -118,6 +118,23 @@ class Cursor(object):
             # python 3 case
             return isinstance(s, str)
 
+    def fetchone(self):
+        if isinstance(self._message, messages.DataRow):
+            if self.rowcount == -1:
+                self.rowcount = 1
+            else:
+                self.rowcount += 1
+             row = self.row_formatter(self._message)
+            # fetch next message
+            self._message = self.connection.read_message()
+            return row
+        elif isinstance(self._message, messages.ReadyForQuery):
+            return None
+        elif isinstance(self._message, messages.CommandComplete):
+            return None
+        else:
+            self.connection.process_message(self._message)
+
     def iterate(self):
         row = self.fetchone()
         while row:
