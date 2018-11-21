@@ -258,15 +258,6 @@ class Cursor(object):
 
         self.flush_to_query_ready()
 
-        if isinstance(data, binary_type):
-            stream = BytesIO(data)
-        elif isinstance(data, text_type):
-            stream = StringIO(data)
-        elif isinstance(data, file_type):
-            stream = data
-        else:
-            raise TypeError("Not valid type of data {0}".format(type(data)))
-
         self.connection.write(messages.Query(sql))
 
         while True:
@@ -276,7 +267,6 @@ class Cursor(object):
                 raise errors.QueryError.from_error_response(message, sql)
 
             self.connection.process_message(message=message)
-
             if isinstance(message, messages.ReadyForQuery):
                 break
             elif isinstance(message, messages.CopyInResponse):
