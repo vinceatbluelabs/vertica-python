@@ -32,6 +32,7 @@ if six.PY2:
 elif six.PY3:
     file_type = (IOBase,)
 
+# VMB Removing everything after this and replacing with an empty class fixed it
 
 class Cursor(object):
     _insert_statement = re.compile(
@@ -243,7 +244,7 @@ class Cursor(object):
 
     def copy(self, sql, data, **kwargs):
         """
-        
+
         EXAMPLE:
         >> with open("/tmp/file.csv", "rb") as fs:
         >>     cursor.copy("COPY table(field1,field2) FROM STDIN DELIMITER ',' ENCLOSED BY '\"'",
@@ -310,49 +311,3 @@ class Cursor(object):
     def format_row_as_array(self, row_data):
         return [self.description[idx].convert(value)
                 for idx, value in enumerate(row_data.values)]
-
-    # noinspection PyArgumentList
-    def format_operation_with_parameters(self, operation, parameters, quote=True):
-        operation = as_text(operation)
-
-        if isinstance(parameters, dict):
-            for key, param in six.iteritems(parameters):
-                if not isinstance(key, string_types):
-                    key = str(key)
-                key = as_text(key)
-
-                if isinstance(param, string_types):
-                    param = as_text(param)
-                    if quote:
-                        param = self.format_quote(param)
-                else:
-                    param = str(param)
-                value = as_text(param)
-
-                # Using a regex with word boundary to correctly handle params with similar names
-                # such as :s and :start
-                match_str = u":{0}\\b".format(key)
-                operation = re.sub(match_str, value, operation, flags=re.U)
-
-        elif isinstance(parameters, (tuple, list)):
-            tlist = []
-            for param in parameters:
-                if isinstance(param, string_types):
-                    param = as_text(param)
-                    if quote:
-                        param = self.format_quote(param)
-                else:
-                    param = str(param)
-                value = as_text(param)
-
-                tlist.append(value)
-
-            operation = operation % tuple(tlist)
-        else:
-            raise errors.Error("Argument 'parameters' must be dict or tuple")
-
-        return operation
-
-    def format_quote(self, param):
-        # TODO Make sure adapt() behaves properly
-        return QuotedString(param.encode(UTF_8, self.unicode_error)).getquoted()
