@@ -289,9 +289,6 @@ class Cursor(object):
     def closed(self):
         return self._closed or self.connection.closed()
 
-    #############################################
-    # internal
-    #############################################
     def row_formatter(self, row_data):
         if self.cursor_type is None:
             return self.format_row_as_array(row_data)
@@ -300,7 +297,7 @@ class Cursor(object):
         elif self.cursor_type in (dict, 'dict'):
             return self.format_row_as_dict(row_data)
         else:
-            raise TypeError('Unrecognized cursor_type: {0}'.format(self.cursor_type))
+            raise Exception('Unrecognized cursor_type: {0}'.format(self.cursor_type))
 
     def format_row_as_dict(self, row_data):
         return OrderedDict(
