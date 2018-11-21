@@ -110,54 +110,13 @@ class Cursor(object):
 
             self._message = self.connection.read_message()
 
-    def executemany(self, operation, seq_of_parameters):
-        operation = as_text(operation)
-
-        if not isinstance(seq_of_parameters, (list, tuple)):
-            raise TypeError("seq_of_parameters should be list/tuple")
-
-        m = self._insert_statement.match(operation)
-        if m:
-            schema = as_text(m.group('schema'))
-            table = as_text(m.group('table'))
-            variables = as_text(m.group('variables'))
-            values = as_text(m.group('values'))
-            if schema is not None:
-                table = "%s.%s" % (schema, table)
-
-            variables = ",".join([variable.strip() for variable in variables.split(",")])
-
-            values = ",".join([value.strip() for value in values.split(",")])
-            seq_of_values = [self.format_operation_with_parameters(values, parameters)
-                             for parameters in seq_of_parameters]
-            data = "\n".join(seq_of_values)
-
-            copy_statement = (
-                "COPY {table} ({variables}) FROM STDIN DELIMITER ',' ENCLOSED BY '\"' "
-                "ENFORCELENGTH ABORT ON ERROR").format(table=table, variables=variables)
-
-            self.copy(copy_statement, data)
-
-        else:
-            raise NotImplementedError(
-                "executemany is implemented for simple INSERT statements only")
-
-    def fetchone(self):
-        if isinstance(self._message, messages.DataRow):
-            if self.rowcount == -1:
-                self.rowcount = 1
-            else:
-                self.rowcount += 1
-            row = self.row_formatter(self._message)
-            # fetch next message
-            self._message = self.connection.read_message()
-            return row
-        elif isinstance(self._message, messages.ReadyForQuery):
-            return None
-        elif isinstance(self._message, messages.CommandComplete):
-            return None
-        else:
-            self.connection.process_message(self._message)
+    def is_stringy(self, s):
+        try:
+            # python 2 case
+            return isinstance(s, basestring)
+        except NameError:
+            # python 3 case
+            return isinstance(s, str)
 
     def iterate(self):
         row = self.fetchone()
