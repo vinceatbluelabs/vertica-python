@@ -214,13 +214,13 @@ class Cursor(object):
     def setoutputsize(self, size, column=None):
         pass
 
-    #############################################
-    # non-dbapi methods
-    #############################################
+    #
+    # Non dbApi methods
+    #
     def flush_to_query_ready(self):
         # if the last message isn't empty or ReadyForQuery, read all remaining messages
         if(self._message is None
-                or isinstance(self._message, messages.ReadyForQuery):
+                or isinstance(self._message, messages.ReadyForQuery)):
             return
 
         while True:
@@ -231,7 +231,7 @@ class Cursor(object):
                 break
 
     def flush_to_command_complete(self):
-        # if the last message isnt empty or CommandComplete, read messages until it is
+        # if the last message isn't empty or CommandComplete, read messages until it is
         if(self._message is None
            or isinstance(self._message, messages.ReadyForQuery)
            or isinstance(self._message, messages.CommandComplete)):
