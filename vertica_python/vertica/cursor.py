@@ -231,6 +231,10 @@ class Cursor(object):
                 break
 
     def flush_to_command_complete(self):
+        # if the last message isnt empty or CommandComplete, read messages until it is
+        if(self._message is None
+           or isinstance(self._message, messages.ReadyForQuery)
+           or isinstance(self._message, messages.CommandComplete)):
         # if the last message isn't empty or CommandComplete, read messages until it is
         if self._message is None or isinstance(self._message, (messages.ReadyForQuery,
                                                                messages.CommandComplete)):
@@ -242,12 +246,12 @@ class Cursor(object):
                 self._message = message
                 break
 
-    def copy(self, sql, data, **kwargs):
     # example:
     #
     # with open("/tmp/file.csv", "rb") as fs:
     #   cursor.copy("COPY table(field1,field2) FROM STDIN DELIMITER ',' ENCLOSED BY '\"'", fs, buffer_size=65536)
     #
+    def copy(self, sql, data, **kwargs):
         if self.closed():
             raise errors.Error('Cursor is closed')
 
