@@ -35,16 +35,10 @@ elif six.PY3:
 # VMB Removing everything after this and replacing with an empty class fixed it
 
 class Cursor(object):
-    _insert_statement = re.compile(
-        u"INSERT\\s+INTO"
-        "\\s+((?P<schema>{id})\\.)?(?P<table>{id})"
-        "\\s*\\(\\s*(?P<variables>({id}(\\s*,\\s*{id})*)?\\s*)\\)"
-        "\\s+VALUES\\s*\\(\\s*(?P<values>.*)\\)".format(id=u"[a-zA-Z_][\\w\\d\\$_]*"), re.U | re.I)
-
-    def __init__(self, connection, cursor_type=None, unicode_error=None):
+    def __init__(self, connection, cursor_type=None, unicode_error='strict'):
         self.connection = connection
         self.cursor_type = cursor_type
-        self.unicode_error = unicode_error if unicode_error is not None else 'strict'
+        self.unicode_error = unicode_error
         self._closed = False
         self._message = None
 
@@ -69,7 +63,6 @@ class Cursor(object):
     #############################################
     # dbapi methods
     #############################################
-    # noinspection PyMethodMayBeStatic
     def callproc(self, procname, parameters=None):
         raise errors.NotSupportedError('Cursor.callproc() is not implemented')
 
