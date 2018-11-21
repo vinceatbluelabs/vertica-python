@@ -235,9 +235,6 @@ class Cursor(object):
         if(self._message is None
            or isinstance(self._message, messages.ReadyForQuery)
            or isinstance(self._message, messages.CommandComplete)):
-        # if the last message isn't empty or CommandComplete, read messages until it is
-        if self._message is None or isinstance(self._message, (messages.ReadyForQuery,
-                                                               messages.CommandComplete)):
             return
 
         while True:
