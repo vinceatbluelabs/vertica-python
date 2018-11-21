@@ -124,7 +124,8 @@ class Cursor(object):
                 self.rowcount = 1
             else:
                 self.rowcount += 1
-             row = self.row_formatter(self._message)
+
+            row = self.row_formatter(self._message)
             # fetch next message
             self._message = self.connection.read_message()
             return row
