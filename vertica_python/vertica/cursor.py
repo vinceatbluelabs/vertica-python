@@ -200,13 +200,12 @@ class Cursor(object):
             elif isinstance(self._message, messages.ReadyForQuery):
                 return False
             else:
-                raise errors.Error(
-                    'Unexpected nextset() state after CommandComplete: {0}'.format(self._message))
+                raise errors.Error('Unexpected nextset() state after CommandComplete: ' + str(self._message))
         elif isinstance(self._message, messages.ReadyForQuery):
             # no more sets left to be read
-            return False
+            return None
         else:
-            raise errors.Error('Unexpected nextset() state: {0}'.format(self._message))
+            raise errors.Error('Unexpected nextset() state: ' + str(self._message))
 
     def setinputsizes(self):
         pass
