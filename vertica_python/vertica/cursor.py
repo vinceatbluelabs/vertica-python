@@ -280,7 +280,14 @@ class Cursor(object):
             if isinstance(message, messages.ReadyForQuery):
                 break
             elif isinstance(message, messages.CopyInResponse):
-                self.connection.write(messages.CopyStream(stream, **kwargs))
+
+                #write stuff
+                if not hasattr(data, "read"):
+                    self.connection.write(messages.CopyData(data))
+                else:
+                    # treat data as stream
+                    self.connection.write(messages.CopyStream(data, **kwargs))
+
                 self.connection.write(messages.CopyDone())
 
         if self.error is not None:
@@ -289,6 +296,7 @@ class Cursor(object):
     #
     # Internal
     #
+
     def closed(self):
         return self._closed or self.connection.closed()
 
