@@ -143,24 +143,19 @@ class Cursor(object):
                 "executemany is implemented for simple INSERT statements only")
 
     def fetchone(self):
-        while True:
-            if isinstance(self._message, messages.DataRow):
-                if self.rowcount == -1:
-                    self.rowcount = 1
-                else:
-                    self.rowcount += 1
-                row = self.row_formatter(self._message)
-                # fetch next message
-                self._message = self.connection.read_message()
-                return row
-            elif isinstance(self._message, messages.ReadyForQuery):
-                return None
-            elif isinstance(self._message, messages.CommandComplete):
-                return None
-            else:
-                self.connection.process_message(self._message)
-
+        if isinstance(self._message, messages.DataRow):
+            if self.rowcount == -1:
+                self.rowcount = 1
+            row = self.row_formatter(self._message)
+            # fetch next message
             self._message = self.connection.read_message()
+            return row
+        elif isinstance(self._message, messages.ReadyForQuery):
+            return None
+        elif isinstance(self._message, messages.CommandComplete):
+            return None
+        else:
+            self.connection.process_message(self._message)
 
     def iterate(self):
         row = self.fetchone()
@@ -189,7 +184,7 @@ class Cursor(object):
         self.flush_to_command_complete()
 
         if self._message is None:
-            return False
+            return None
         elif isinstance(self._message, messages.CommandComplete):
             # there might be another set, read next message to find out
             self._message = self.connection.read_message()
@@ -198,7 +193,7 @@ class Cursor(object):
                 self._message = self.connection.read_message()
                 return True
             elif isinstance(self._message, messages.ReadyForQuery):
-                return False
+                return None
             else:
                 raise errors.Error('Unexpected nextset() state after CommandComplete: ' + str(self._message))
         elif isinstance(self._message, messages.ReadyForQuery):
@@ -206,6 +201,7 @@ class Cursor(object):
             return None
         else:
             raise errors.Error('Unexpected nextset() state: ' + str(self._message))
+
 
     def setinputsizes(self):
         pass
