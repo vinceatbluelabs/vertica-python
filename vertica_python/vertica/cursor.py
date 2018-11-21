@@ -243,16 +243,11 @@ class Cursor(object):
                 break
 
     def copy(self, sql, data, **kwargs):
-        """
-
-        EXAMPLE:
-        >> with open("/tmp/file.csv", "rb") as fs:
-        >>     cursor.copy("COPY table(field1,field2) FROM STDIN DELIMITER ',' ENCLOSED BY '\"'",
-        >>                 fs, buffer_size=65536)
-
-        """
-        sql = as_text(sql)
-
+    # example:
+    #
+    # with open("/tmp/file.csv", "rb") as fs:
+    #   cursor.copy("COPY table(field1,field2) FROM STDIN DELIMITER ',' ENCLOSED BY '\"'", fs, buffer_size=65536)
+    #
         if self.closed():
             raise errors.Error('Cursor is closed')
 
